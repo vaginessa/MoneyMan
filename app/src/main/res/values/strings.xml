@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">MoneyMan</string>
+
+    <string name="initial_total">0.0</string>
+    <string name="add_transaction">Add transaction</string>
+    <string name="description">Description</string>
+    <string name="amount">Amount</string>
+    <string name="currency">INR</string>
+    <string name="credit">CREDIT</string>
+    <string name="day">Sat</string>
+    <string name="date">2017&#8211;7&#8211;22</string>
+    <string name="number">1234</string>
+    <string name="edit_transaction">Edit transaction</string>
+
+    <string-array name="type">
+        <item>CREDIT</item>
+        <item>DEBIT</item>
+    </string-array>
+</resources>
