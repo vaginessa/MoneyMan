@@ -52,7 +52,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void readFromDB(List<ModelItem> itemList) {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(CustomConstants.TABLE_NAME,
-                null, null, null, null, null, "date(" + CustomConstants.KEY_DATE + ") DESC Limit 10000");
+                null, null, null, null, null,
+                "date(" + CustomConstants.KEY_DATE + ") DESC, " +
+                        CustomConstants.KEY_ID + " DESC Limit 10000");
 
         try {
             while (cursor.moveToNext()) {
