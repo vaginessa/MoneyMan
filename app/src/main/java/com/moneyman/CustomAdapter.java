@@ -15,6 +15,8 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.moneyman.models.ModelItem;
+import com.moneyman.utils.UtilMisc;
 
 import java.util.List;
 
@@ -25,10 +27,10 @@ import java.util.List;
 
 public class CustomAdapter extends BaseAdapter {
     private static LayoutInflater inflater = null;
-    private List<ListItem> itemList;
+    private List<ModelItem> itemList;
     private Context context;
 
-    public CustomAdapter(Context context, List<ListItem> itemList) {
+    public CustomAdapter(Context context, List<ModelItem> itemList) {
         this.itemList = itemList;
         this.context = context;
         inflater = (LayoutInflater) context.
@@ -117,7 +119,7 @@ public class CustomAdapter extends BaseAdapter {
                                 notifyDataSetChanged();
 
                                 new DatabaseHandler(getContext())
-                                        .updateTransaction(new ListItem(
+                                        .updateTransaction(new ModelItem(
                                                 itemList.get(position).getId(), amt, dsc, typ, dat));
                             }
                         })
@@ -126,10 +128,10 @@ public class CustomAdapter extends BaseAdapter {
                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                 new DatabaseHandler(getContext())
                                         .deleteNote(itemList.get(position).getId());
-                                String temp = Utils.calculate(itemList.get(position).getAmount(),
-                                        Utils.getTotal(getContext()),
+                                String temp = UtilMisc.calculate(itemList.get(position).getAmount(),
+                                        UtilMisc.getTotal(getContext()),
                                         itemList.get(position).getTransaction(), 1);
-                                Utils.setTotal(getContext(), temp);
+                                UtilMisc.setTotal(getContext(), temp);
                                 itemList.remove(itemList.get(position));
                                 notifyDataSetChanged();
                             }

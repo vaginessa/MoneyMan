@@ -1,20 +1,25 @@
-package com.moneyman;
+package com.moneyman.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.widget.TextView;
 
+import com.moneyman.CustomConstants;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Created by chatRG.
  */
 
-class Utils {
+public class UtilMisc {
 
-    static String calculate(String amt, String sum, String type, int flag) {
+    public static String calculate(String amt, String sum, String type, int flag) {
         switch (flag) {
 
             case 0:
@@ -39,21 +44,21 @@ class Utils {
                 .doubleValue() + "".trim();
     }
 
-    static String getFormattedMonth(int month) {
-        return month < 10 ? ("0" + month) : month + "";
+    public static String getFormattedDate(Calendar calendar) {
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(calendar.getTime());
     }
 
-    static String getTotal(Context context) {
+    public static String getTotal(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getString("total", "0.0");
     }
 
-    static void setTotal(Context context, String s) {
+    public static void setTotal(Context context, String s) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         sharedPref.edit().putString("total", s).apply();
     }
 
-    static void updateTotal(Context context, TextView tv) {
+    public static void updateTotal(Context context, TextView tv) {
         tv.setText(getTotal(context));
     }
 }

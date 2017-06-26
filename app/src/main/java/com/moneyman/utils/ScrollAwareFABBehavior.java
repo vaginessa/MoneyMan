@@ -1,4 +1,4 @@
-package com.moneyman;
+package com.moneyman.utils;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;

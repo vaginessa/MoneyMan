@@ -1,26 +1,21 @@
 package com.moneyman;
 
-import android.app.DatePickerDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.moneyman.models.ModelItem;
+import com.moneyman.utils.UtilDialog;
+import com.moneyman.utils.UtilMisc;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -29,17 +24,16 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static MaterialDialog dialog;
-    private static int year;
-    private static int month;
-    private static int day;
+    private MaterialDialog dialog;
+
     @BindView(R.id.toolbar_main)
     Toolbar mToolbar;
     @BindView(R.id.spent_list)
     ListView mList;
     @BindView(R.id.total)
-    TextView tv_total;
-    private List<ListItem> mSpentList;
+    TextView tvTotal;
+
+    private List<ModelItem> mSpentList;
     private CustomAdapter mAdapter;
     private DatabaseHandler db;
 
@@ -54,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private void init() {
         setSupportActionBar(mToolbar);
         mSpentList = new ArrayList<>();
-        Utils.updateTotal(getBaseContext(), tv_total);
+        UtilMisc.updateTotal(getBaseContext(), tvTotal);
         db = new DatabaseHandler(this);
         db.readFromDB(mSpentList);
         mAdapter = new CustomAdapter(MainActivity.this, mSpentList);
@@ -63,53 +57,16 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.fab)
     public void fabClick() {
-        dialog = new MaterialDialog.Builder(this)
-                .title(R.string.add_transaction)
-                .customView(R.layout.dialog_add, true)
-                .neutralText(android.R.string.cancel)
-                .positiveText(android.R.string.ok)
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog,
-                                        @NonNull DialogAction which) {
-                        ListItem item = getValues(dialog);
-                        mSpentList.add(0, item);
-                        mList.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                mList.smoothScrollToPosition(0);
-                            }
-                        });
-                        db.addListItem(item);
-                        mSpentList.clear();
-                        db.readFromDB(mSpentList);
-                        mAdapter.notifyDataSetChanged();
-                        String temp = Utils.calculate(item.getAmount(),
-                                tv_total.getText().toString(), item.getTransaction(), 0);
-                        Utils.setTotal(getBaseContext(), temp);
-                        tv_total.setText(temp);
-                    }
-                })
-                .cancelable(false)
-                .build();
-
+        final UtilDialog utilDialog = new UtilDialog();
+        dialog = utilDialog.addDialog(MainActivity.this, db, mAdapter, mList, mSpentList, tvTotal);
         (dialog.getCustomView().findViewById(R.id.add_date))
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        DialogFragment newFragment = new DatePickerFragment();
-                        newFragment.show(getFragmentManager(), "datepicker");
+                        utilDialog.datePickerDialog(MainActivity.this, dialog);
                     }
                 });
         dialog.show();
-    }
-
-    private ListItem getValues(MaterialDialog dialog) {
-        String date = year + "-" + Utils.getFormattedMonth(month) + "-" + day;
-        String amount = ((EditText) dialog.findViewById(R.id.add_amount)).getText().toString();
-        String desc = ((EditText) dialog.findViewById(R.id.add_desc)).getText().toString().trim();
-        String type = ((Spinner) dialog.findViewById(R.id.add_spinner)).getSelectedItem().toString();
-        return new ListItem(0, amount, desc, type, date);
     }
 
     @Override
@@ -119,69 +76,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected boolean onPrepareOptionsPanel(View view, Menu menu) {
+        if (menu != null) {
+            if (menu.getClass().getSimpleName().equals("MenuBuilder")) {
+                try {
+                    Method m = menu.getClass().getDeclaredMethod(
+                            "setOptionalIconsVisible", Boolean.TYPE);
+                    m.setAccessible(true);
+                    m.invoke(menu, true);
+                } catch (Exception e) {
+                    //
+                }
+            }
+        }
+        return super.onPrepareOptionsPanel(view, menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                Utils.updateTotal(getBaseContext(), tv_total);
+                UtilMisc.updateTotal(getBaseContext(), tvTotal);
                 break;
 
             case R.id.menu_export:
-                new DatabaseHandler(getBaseContext()).exportToCSV();
+                UtilDialog.exportDialog(MainActivity.this);
                 break;
 
             case R.id.menu_delete:
-                new MaterialDialog.Builder(this)
-                        .title("Are you sure?")
-                        .content("Deleting all transactions is undoable.")
-                        .positiveText(android.R.string.ok)
-                        .neutralText(android.R.string.cancel)
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                new DatabaseHandler(MainActivity.this).deleteAllNote();
-                                mSpentList.clear();
-                                mAdapter.notifyDataSetChanged();
-                                Utils.setTotal(MainActivity.this, "0.0");
-                                Utils.updateTotal(getBaseContext(), tv_total);
-                            }
-                        })
-                        .show();
+                UtilDialog.deleteDialog(MainActivity.this, mSpentList, mAdapter, tvTotal);
                 break;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (dialog.isShowing()) {
-            dialog.hide();
-        }
-        super.onBackPressed();
-    }
-
-    public static class DatePickerFragment extends DialogFragment
-            implements DatePickerDialog.OnDateSetListener {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-            DatePickerDialog dpDialog = new DatePickerDialog(getActivity(), this, year, month, day);
-            //dialog.getDatePicker().setMaxDate(c.getTimeInMillis());
-            return dpDialog;
-        }
-
-        @Override
-        public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-            year = i;
-            month = i1 + 1;
-            day = i2;
-
-            String date = year + "-" + Utils.getFormattedMonth(month) + "-" + day;
-            ((EditText) dialog.findViewById(R.id.add_date)).setText(date);
-        }
     }
 }

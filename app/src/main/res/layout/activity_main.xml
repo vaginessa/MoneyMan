@@ -70,6 +70,6 @@
         app:elevation="4dp"
         app:layout_anchor="@id/spent_list"
         app:layout_anchorGravity="bottom|end|right"
-        app:layout_behavior="com.moneyman.ScrollAwareFABBehavior" />
+        app:layout_behavior="com.moneyman.utils.ScrollAwareFABBehavior" />
 
 </android.support.design.widget.CoordinatorLayout>

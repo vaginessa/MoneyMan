@@ -1,10 +1,10 @@
-package com.moneyman;
+package com.moneyman.models;
 
 /**
  * Created by chatRG.
  */
 
-public class ListItem {
+public class ModelItem {
 
     private int id;
     private String amount;
@@ -12,10 +12,10 @@ public class ListItem {
     private String transaction;
     private String date;
 
-    public ListItem() {
+    public ModelItem() {
     }
 
-    public ListItem(int id, String amount, String desc, String transaction, String date) {
+    public ModelItem(int id, String amount, String desc, String transaction, String date) {
         this.id = id;
         this.amount = amount;
         this.desc = desc;
