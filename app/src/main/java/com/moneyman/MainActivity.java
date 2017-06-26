@@ -29,22 +29,19 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static MaterialDialog dialog;
+    private static int year;
+    private static int month;
+    private static int day;
     @BindView(R.id.toolbar_main)
     Toolbar mToolbar;
     @BindView(R.id.spent_list)
     ListView mList;
     @BindView(R.id.total)
     TextView tv_total;
-
-    private List<SpentItem> mSpentList;
+    private List<ListItem> mSpentList;
     private CustomAdapter mAdapter;
     private DatabaseHandler db;
-    private static MaterialDialog dialog;
-
-    private static int year;
-    private static int month;
-    private static int day;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog,
                                         @NonNull DialogAction which) {
-                        SpentItem item = getValues(dialog);
+                        ListItem item = getValues(dialog);
                         mSpentList.add(0, item);
                         mList.post(new Runnable() {
                             @Override
@@ -107,36 +104,12 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    public static class DatePickerFragment extends DialogFragment
-            implements DatePickerDialog.OnDateSetListener {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-            DatePickerDialog dpDialog = new DatePickerDialog(getActivity(), this, year, month, day);
-            //dialog.getDatePicker().setMaxDate(c.getTimeInMillis());
-            return dpDialog;
-        }
-
-        @Override
-        public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-            year = i;
-            month = i1 + 1;
-            day = i2;
-
-            String date = year + "-" + Utils.getFormattedMonth(month) + "-" + day;
-            ((EditText) dialog.findViewById(R.id.add_date)).setText(date);
-        }
-    }
-
-    private SpentItem getValues(MaterialDialog dialog) {
+    private ListItem getValues(MaterialDialog dialog) {
         String date = year + "-" + Utils.getFormattedMonth(month) + "-" + day;
         String amount = ((EditText) dialog.findViewById(R.id.add_amount)).getText().toString();
         String desc = ((EditText) dialog.findViewById(R.id.add_desc)).getText().toString().trim();
         String type = ((Spinner) dialog.findViewById(R.id.add_spinner)).getSelectedItem().toString();
-        return new SpentItem(0, amount, desc, type, date);
+        return new ListItem(0, amount, desc, type, date);
     }
 
     @Override
@@ -151,6 +124,10 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
                 Utils.updateTotal(getBaseContext(), tv_total);
+                break;
+
+            case R.id.menu_export:
+                new DatabaseHandler(getBaseContext()).exportToCSV();
                 break;
 
             case R.id.menu_delete:
@@ -182,5 +159,29 @@ public class MainActivity extends AppCompatActivity {
             dialog.hide();
         }
         super.onBackPressed();
+    }
+
+    public static class DatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+            DatePickerDialog dpDialog = new DatePickerDialog(getActivity(), this, year, month, day);
+            //dialog.getDatePicker().setMaxDate(c.getTimeInMillis());
+            return dpDialog;
+        }
+
+        @Override
+        public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+            year = i;
+            month = i1 + 1;
+            day = i2;
+
+            String date = year + "-" + Utils.getFormattedMonth(month) + "-" + day;
+            ((EditText) dialog.findViewById(R.id.add_date)).setText(date);
+        }
     }
 }

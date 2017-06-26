@@ -24,12 +24,11 @@ import java.util.List;
 
 
 public class CustomAdapter extends BaseAdapter {
-    private List<SpentItem> itemList;
+    private static LayoutInflater inflater = null;
+    private List<ListItem> itemList;
     private Context context;
 
-    private static LayoutInflater inflater = null;
-
-    public CustomAdapter(Context context, List<SpentItem> itemList) {
+    public CustomAdapter(Context context, List<ListItem> itemList) {
         this.itemList = itemList;
         this.context = context;
         inflater = (LayoutInflater) context.
@@ -53,13 +52,6 @@ public class CustomAdapter extends BaseAdapter {
 
     public Context getContext() {
         return context;
-    }
-
-    public class Holder {
-        TextView tv_amount;
-        TextView tv_desc;
-        TextView tv_trans;
-        TextView tv_date;
     }
 
     @Override
@@ -125,7 +117,7 @@ public class CustomAdapter extends BaseAdapter {
                                 notifyDataSetChanged();
 
                                 new DatabaseHandler(getContext())
-                                        .updateTransaction(new SpentItem(
+                                        .updateTransaction(new ListItem(
                                                 itemList.get(position).getId(), amt, dsc, typ, dat));
                             }
                         })
@@ -165,5 +157,12 @@ public class CustomAdapter extends BaseAdapter {
         });
 
         return rowView;
+    }
+
+    public class Holder {
+        TextView tv_amount;
+        TextView tv_desc;
+        TextView tv_trans;
+        TextView tv_date;
     }
 }

@@ -4,7 +4,7 @@ package com.moneyman;
  * Created by chatRG.
  */
 
-public class SpentItem {
+public class ListItem {
 
     private int id;
     private String amount;
@@ -12,10 +12,10 @@ public class SpentItem {
     private String transaction;
     private String date;
 
-    public SpentItem() {
+    public ListItem() {
     }
 
-    public SpentItem(int id, String amount, String desc, String transaction, String date) {
+    public ListItem(int id, String amount, String desc, String transaction, String date) {
         this.id = id;
         this.amount = amount;
         this.desc = desc;

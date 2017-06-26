@@ -68,7 +68,6 @@
         android:layout_margin="20dp"
         android:src="@drawable/ic_money"
         app:elevation="4dp"
-        app:fabSize="mini"
         app:layout_anchor="@id/spent_list"
         app:layout_anchorGravity="bottom|end|right"
         app:layout_behavior="com.moneyman.ScrollAwareFABBehavior" />

@@ -10,10 +10,17 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/menu_export"
+        android:icon="@drawable/ic_export"
+        android:orderInCategory="100"
+        android:title="Export"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_delete"
         android:icon="@drawable/ic_delete"
         android:orderInCategory="100"
         android:title="Delete"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
 </menu>
